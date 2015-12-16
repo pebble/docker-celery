@@ -11,11 +11,14 @@ RUN pip install celery=="$CELERY_VERSION"
 
 RUN { \
 	echo 'import os'; \
-	echo "BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://')"; \
+    echo 'import ast'; \
+    echo "BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'amqp://')"; \
+    echo "BROKER_TRANSPORT_OPTIONS = ast.literal_eval(os.environ.get('CELERY_BROKER_TRANSPORT_OPTIONS', '{}'))"; \
 } > celeryconfig.py
 
 # --link some-rabbit:rabbit "just works"
 ENV CELERY_BROKER_URL amqp://guest@rabbit
+ENV CELERY_BROKER_URL '{}'
 
 USER user
 CMD ["celery", "worker"]
